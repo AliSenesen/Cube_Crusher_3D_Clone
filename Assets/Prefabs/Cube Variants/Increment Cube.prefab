@@ -28,7 +28,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1461453534589468924, guid: c873c5feb6685bf43a483c0115b3bbff, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: IncrementCube
       objectReference: {fileID: 0}
     - target: {fileID: 3704589455061092362, guid: c873c5feb6685bf43a483c0115b3bbff, type: 3}
       propertyPath: m_SizeDelta.x
@@ -62,6 +62,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5290814599278116263, guid: c873c5feb6685bf43a483c0115b3bbff, type: 3}
       propertyPath: m_fontSizeMin
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5713707231840133943, guid: c873c5feb6685bf43a483c0115b3bbff, type: 3}
+      propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6179542925574501961, guid: c873c5feb6685bf43a483c0115b3bbff, type: 3}
