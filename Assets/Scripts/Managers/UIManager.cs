@@ -2,6 +2,7 @@
 using Data.UnityObject;
 using Data.ValueObject;
 using Enums;
+using Interface;
 using Signals;
 using Sirenix.OdinInspector;
 using TMPro;
@@ -9,8 +10,13 @@ using UnityEngine;
 
 namespace Managers
 {
-    public class UIManager : MonoBehaviour
+    public class UIManager : MonoBehaviour,ISaveable
     {
+        #region Public Variables
+
+        public MoneyData MoneyData;
+
+        #endregion
         #region Serialized Variables
 
         [SerializeField] private UIPanelController uiPanelController;
@@ -28,26 +34,40 @@ namespace Managers
         #endregion
 
         #region Private Variables
-
-        [ShowInInspector]private MoneyData _moneyData;
+        
         private GameManager _gameManager;
+        private int _uniqueId = 0;
 
         #endregion
         
-        private void Awake()
+        private void Start()
         {
             GetDataResources();
+            SetData();
         }
 
         private void GetDataResources()
         {
-            _moneyData = GetMoneyData();
             _gameManager = FindObjectOfType<GameManager>();
-            coinText.text = _moneyData.TotalMoney.ToString();
-            powerButtonLevelText.text = "Level " + _moneyData.PowerLevel.ToString();
-            powerButtonCoinText.text = _moneyData.PowerMoneyDecrease.ToString();
-            coinButtonLevelText.text = "Level " + _moneyData.GainCoinLevel.ToString();
-            coinButtonCoinText.text = _moneyData.GainCoinDecrease.ToString();
+            MoneyData = GetMoneyData();
+            coinText.text = MoneyData.TotalMoney.ToString();
+            powerButtonLevelText.text = "Level " + MoneyData.PowerLevel.ToString();
+            powerButtonCoinText.text = MoneyData.PowerMoneyDecrease.ToString();
+            coinButtonLevelText.text = "Level " + MoneyData.GainCoinLevel.ToString();
+            coinButtonCoinText.text = MoneyData.GainCoinDecrease.ToString();
+        }
+        
+        private void SetData()
+        {
+            if (!ES3.FileExists($"MoneyDataKey{_uniqueId}.es3"))
+            {
+                if (!ES3.KeyExists("MoneyDataKey"))
+                {
+                    MoneyData = GetMoneyData();
+                    Save(_uniqueId);
+                }
+            }
+            Load(_uniqueId);
         }
         
 
@@ -70,7 +90,9 @@ namespace Managers
 
             CoreGameSignals.Instance.onPlay += OnPlay;
             CoreGameSignals.Instance.onReset += OnReset;
+            CoreGameSignals.Instance.onApplicationQuit += OnSave;
             
+            LevelSignals.Instance.onLevelInitialize += OnLoad;
             LevelSignals.Instance.onLevelFailed += OnLevelFailed;
             LevelSignals.Instance.onNextLevel += OnNextLevel;
         }
@@ -84,7 +106,9 @@ namespace Managers
 
             CoreGameSignals.Instance.onPlay -= OnPlay;
             CoreGameSignals.Instance.onReset -= OnReset;
-
+            CoreGameSignals.Instance.onApplicationQuit += OnSave;
+            
+            LevelSignals.Instance.onLevelInitialize += OnLoad;
             LevelSignals.Instance.onLevelFailed -= OnLevelFailed;
             LevelSignals.Instance.onNextLevel -= OnNextLevel;
         }
@@ -95,8 +119,17 @@ namespace Managers
         }
         
         #endregion
-        
 
+        private void OnSave()
+        {
+            Save(_uniqueId);
+        }
+
+        private void OnLoad()
+        {
+            Load(_uniqueId);
+        }
+        
         public void PlayButton()
         {
             CoreGameSignals.Instance.onPlay?.Invoke();
@@ -105,36 +138,37 @@ namespace Managers
 
         public void BaseCubePowerIncrease()
         {
-            if (_moneyData.TotalMoney - _moneyData.PowerMoneyDecrease < 0)
+            if (MoneyData.TotalMoney - MoneyData.PowerMoneyDecrease < 0)
             {
                 return;
             }
-            _moneyData.BaseCubeValue += 1;
+            MoneyData.BaseCubeValue += 1;
             BaseCubeSignals.Instance.onBaseCubePowerIncrease?.Invoke();
-            _moneyData.TotalMoney -= _moneyData.PowerMoneyDecrease;
-            _moneyData.PowerMoneyDecrease += _moneyData.PowerMoneyDecrease;
-            _moneyData.PowerLevel += 1;
+            MoneyData.TotalMoney -= MoneyData.PowerMoneyDecrease;
+            MoneyData.PowerMoneyDecrease += MoneyData.PowerMoneyDecrease;
+            MoneyData.PowerLevel += 1;
 
-            powerButtonCoinText.text = _moneyData.PowerMoneyDecrease.ToString();
-            powerButtonLevelText.text = "Level " + _moneyData.PowerLevel.ToString();
-            coinText.text = _moneyData.TotalMoney.ToString();
+            powerButtonCoinText.text = MoneyData.PowerMoneyDecrease.ToString();
+            powerButtonLevelText.text = "Level " + MoneyData.PowerLevel.ToString();
+            coinText.text = MoneyData.TotalMoney.ToString();
+            Save(_uniqueId);
         }
 
         public void GainMoneyIncrease()
         {
-            if (_moneyData.TotalMoney - _moneyData.GainCoinDecrease < 0)
+            if (MoneyData.TotalMoney - MoneyData.GainCoinDecrease < 0)
             {
                 return;
             }
-            _moneyData.GainMoney += 1;
-            _moneyData.TotalMoney -= _moneyData.GainCoinDecrease;
-            _moneyData.GainCoinDecrease += _moneyData.GainCoinDecrease;
-            _moneyData.GainCoinLevel += 1;
+            MoneyData.GainMoney += 1;
+            MoneyData.TotalMoney -= MoneyData.GainCoinDecrease;
+            MoneyData.GainCoinDecrease += MoneyData.GainCoinDecrease;
+            MoneyData.GainCoinLevel += 1;
 
-            coinButtonCoinText.text = _moneyData.GainCoinDecrease.ToString();
-            coinButtonLevelText.text = "Level " + _moneyData.GainCoinLevel.ToString();
-            coinText.text = _moneyData.TotalMoney.ToString();
-            
+            coinButtonCoinText.text = MoneyData.GainCoinDecrease.ToString();
+            coinButtonLevelText.text = "Level " + MoneyData.GainCoinLevel.ToString();
+            coinText.text = MoneyData.TotalMoney.ToString();
+            Save(_uniqueId);
         }
         public void RestartButton()
         {
@@ -153,6 +187,7 @@ namespace Managers
         private void OnOpenPanel(UIPanels panel)
         {
             uiPanelController.OpenPanel(panel);
+            Save(_uniqueId);
         }
         
         private void OnClosePanel(UIPanels panel)
@@ -186,8 +221,8 @@ namespace Managers
         
         private void OnSetCoinText()
         {
-            _moneyData.TotalMoney += _moneyData.GainMoney;
-            coinText.text = _moneyData.TotalMoney.ToString();
+            MoneyData.TotalMoney += MoneyData.GainMoney;
+            coinText.text = MoneyData.TotalMoney.ToString();
         }
         
         private void OnLevelFailed()
@@ -202,11 +237,39 @@ namespace Managers
 
         private void OnReset()
         {
+            Save(_uniqueId);
             LevelSignals.Instance.onClearActiveLevel?.Invoke();
             LevelSignals.Instance.onLevelInitialize?.Invoke();
             
             UISignals.Instance.onOpenPanel?.Invoke(UIPanels.StartPanel);
             UISignals.Instance.onOpenPanel?.Invoke(UIPanels.LevelPanel);
+            
+        }
+
+        public void Save(int uniqueId)
+        {
+            MoneyData = new MoneyData(MoneyData.TotalMoney,
+                    MoneyData.GainMoney,
+                        MoneyData.BaseCubeValue,
+                            MoneyData.PowerMoneyDecrease,
+                                MoneyData.PowerLevel,
+                                    MoneyData.GainCoinLevel,
+                                        MoneyData.GainCoinDecrease);
+                
+            SaveSignals.Instance.onSaveMoneyData?.Invoke(MoneyData, uniqueId);
+        }
+
+        public void Load(int uniqueId)
+        {
+            MoneyData moneyData = SaveSignals.Instance.onLoadMoneyData?.Invoke(MoneyData.Key, uniqueId);
+            
+            MoneyData.TotalMoney = moneyData.TotalMoney;
+            MoneyData.GainMoney = moneyData.GainMoney;
+            MoneyData.BaseCubeValue = moneyData.BaseCubeValue;
+            MoneyData.PowerMoneyDecrease = moneyData.PowerMoneyDecrease;
+            MoneyData.PowerLevel = moneyData.PowerLevel;
+            MoneyData.GainCoinLevel = moneyData.GainCoinLevel;
+            MoneyData.GainCoinDecrease = moneyData.GainCoinDecrease;
         }
     }
 }
