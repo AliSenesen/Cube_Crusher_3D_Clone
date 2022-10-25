@@ -10,6 +10,7 @@ namespace Signals
         public UnityAction onLevelInitialize = delegate {  };
         public UnityAction onClearActiveLevel = delegate {  };
         public UnityAction onLevelFailed = delegate {  };
+        public UnityAction onLevelCompleted = delegate {  };
         public UnityAction onNextLevel = delegate {  };
         public UnityAction onRestartLevel = delegate {  };
         public Func<int> onGetLevel = delegate { return 0;};

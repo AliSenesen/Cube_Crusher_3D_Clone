@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Managers
 {
-    public class UIManager : MonoBehaviour,ISaveable
+    public class UIManager : MonoBehaviour//,ISaveable
     {
         #region Serialized Variables
 
@@ -32,27 +32,28 @@ namespace Managers
 
         [ShowInInspector]public MoneyData _moneyData;
         private GameManager _gameManager;
-        private int _uniqueId;
+        private int _uniqueId = 0;
 
         #endregion
         
         private void Awake()
         {
             SetData();
+            _moneyData = GetMoneyData();
             GetDataResources();
         }
 
         private void SetData()
         {
-            if (!ES3.FileExists($"MoneyData{_uniqueId}.es3"))
-            {
-                if (!ES3.KeyExists("MoneyData"))
-                {
-                    _moneyData = GetMoneyData();
-                    Save(_uniqueId);
-                }
-            }
-            Load(_uniqueId);
+            // if (!ES3.FileExists($"MoneyData{_uniqueId}.es3"))
+            // {
+            //     if (!ES3.KeyExists("MoneyData"))
+            //     {
+            //         _moneyData = GetMoneyData();
+            //         Save(_uniqueId);
+            //     }
+            // }
+            // Load(_uniqueId);
         }
 
         private void GetDataResources()
@@ -88,8 +89,8 @@ namespace Managers
             CoreGameSignals.Instance.onGameClose += OnGameClose;
 
             LevelSignals.Instance.onLevelInitialize += OnLevelInitialize;
+            LevelSignals.Instance.onLevelCompleted += OnLevelCompleted;
             LevelSignals.Instance.onLevelFailed += OnLevelFailed;
-            LevelSignals.Instance.onNextLevel += OnNextLevel;
         }
         private void UnSubscribeEvents()
         {
@@ -104,11 +105,12 @@ namespace Managers
             CoreGameSignals.Instance.onGameClose -= OnGameClose;
 
             LevelSignals.Instance.onLevelInitialize -= OnLevelInitialize;
+            LevelSignals.Instance.onLevelCompleted -= OnLevelCompleted;
             LevelSignals.Instance.onLevelFailed -= OnLevelFailed;
-            LevelSignals.Instance.onNextLevel -= OnNextLevel;
         }
 
         
+
 
         private void OnDisable()
         {
@@ -116,13 +118,6 @@ namespace Managers
         }
         
         #endregion
-        
-        private void OnGamePause(bool value)
-        {
-            if (value == false) Save(_uniqueId);
-            else Load(_uniqueId);
-        }
-        
 
         public void PlayButton()
         {
@@ -145,7 +140,7 @@ namespace Managers
             powerButtonCoinText.text = _moneyData.PowerMoneyDecrease.ToString();
             powerButtonLevelText.text = "Level " + _moneyData.PowerLevel.ToString();
             coinText.text = _moneyData.TotalMoney.ToString();
-            Save(_uniqueId);
+            //Save(_uniqueId);
         }
 
         public void GainMoneyIncrease()
@@ -162,7 +157,7 @@ namespace Managers
             coinButtonCoinText.text = _moneyData.GainCoinDecrease.ToString();
             coinButtonLevelText.text = "Level " + _moneyData.GainCoinLevel.ToString();
             coinText.text = _moneyData.TotalMoney.ToString();
-            Save(_uniqueId);
+            //Save(_uniqueId);
         }
         public void RestartButton()
         {
@@ -173,8 +168,10 @@ namespace Managers
 
         public void NextLevelButton()
         {
+            LevelSignals.Instance.onNextLevel?.Invoke();
             UISignals.Instance.onClosePanel?.Invoke(UIPanels.WinPanel);
-            CoreGameSignals.Instance.onReset?.Invoke();
+            UISignals.Instance.onOpenPanel?.Invoke(UIPanels.StartPanel);
+            UISignals.Instance.onOpenPanel?.Invoke(UIPanels.LevelPanel);
             CoreGameSignals.Instance.onChangeGameState?.Invoke(GameStates.GameOpen);
         }
         
@@ -215,7 +212,7 @@ namespace Managers
         {
             _moneyData.TotalMoney += _moneyData.GainMoney;
             coinText.text = _moneyData.TotalMoney.ToString();
-            Save(_uniqueId);
+            //Save(_uniqueId);
             
         }
         
@@ -224,72 +221,74 @@ namespace Managers
             OnOpenPanel(UIPanels.FailPanel);
         }
 
-        private void OnNextLevel()
+        
+        private void OnLevelCompleted()
         {
             OnOpenPanel(UIPanels.WinPanel);
+            OnClosePanel(UIPanels.LevelPanel);
         }
 
         private void OnLevelInitialize()
         {
-            Load(_uniqueId);
+            //Load(_uniqueId);
         }
         
         private void OnGameClose()
         {
-            Save(_uniqueId);
+            //Save(_uniqueId);
         }
 
         private void OnReset()
         {
-            Save(_uniqueId);
+            //Save(_uniqueId);
             
-            LevelSignals.Instance.onClearActiveLevel?.Invoke();
-            LevelSignals.Instance.onLevelInitialize?.Invoke();
+             LevelSignals.Instance.onClearActiveLevel?.Invoke();
+             LevelSignals.Instance.onLevelInitialize?.Invoke();
             
             UISignals.Instance.onOpenPanel?.Invoke(UIPanels.StartPanel);
             UISignals.Instance.onOpenPanel?.Invoke(UIPanels.LevelPanel);
         }
 
-        public void Save(int uniqueId)
-        {
-            _moneyData = new MoneyData(_moneyData.TotalMoney,
-                _moneyData.GainMoney,
-                _moneyData.BaseCubeValue,
-                _moneyData.PowerMoneyDecrease,
-                _moneyData.PowerLevel,
-                _moneyData.GainCoinLevel,
-                _moneyData.GainCoinDecrease);
-            
-            Debug.Log(_moneyData.TotalMoney + "     SAVE.TotalMoney");
-            Debug.Log(_moneyData.GainMoney + "     SAVE.GainMoney");
-            Debug.Log(_moneyData.BaseCubeValue + "     SAVE.BaseCubeValue");
-            Debug.Log(_moneyData.PowerMoneyDecrease + "     SAVE.PowerMoneyDecrease");
-            Debug.Log(_moneyData.PowerLevel + "     SAVE.PowerLevel");
-            Debug.Log(_moneyData.GainCoinLevel + "     SAVE.GainCoinLevel");
-            Debug.Log(_moneyData.GainCoinDecrease + "     SAVE.GainCoinDecrease");
-            
-            SaveSignals.Instance.onSaveMoneyData.Invoke(_moneyData,uniqueId);
-        }
-
-        public void Load(int uniqueId)
-        {
-            MoneyData moneyData = SaveSignals.Instance.onLoadMoneyData.Invoke(_moneyData.Key, uniqueId);
-            
-            _moneyData.TotalMoney = moneyData.TotalMoney;
-            _moneyData.GainMoney = moneyData.GainMoney;
-            _moneyData.BaseCubeValue = moneyData.BaseCubeValue;
-            _moneyData.PowerMoneyDecrease = moneyData.PowerMoneyDecrease;
-            _moneyData.PowerLevel = moneyData.PowerLevel;
-            _moneyData.GainCoinLevel = moneyData.GainCoinLevel; 
-            _moneyData.GainCoinDecrease = moneyData.GainCoinDecrease;
-            
-            Debug.Log(moneyData.TotalMoney + "     LOAD.TotalMoney");
-            Debug.Log(moneyData.GainMoney + "     LOAD.GainMoney");
-            Debug.Log(moneyData.BaseCubeValue + "     LOAD.BaseCubeValue");
-            Debug.Log(moneyData.PowerMoneyDecrease + "     LOAD.PowerMoneyDecrease");
-            Debug.Log(moneyData.PowerLevel + "     LOAD.PowerLevel");
-            Debug.Log(moneyData.GainCoinLevel + "     LOAD.GainCoinLevel");
-            Debug.Log(moneyData.GainCoinDecrease + "     LOAD.GainCoinDecrease");
-        }
+        // public void Save(int uniqueId)
+        // {
+        //     _moneyData = new MoneyData(_moneyData.TotalMoney,
+        //         _moneyData.GainMoney,
+        //         _moneyData.BaseCubeValue,
+        //         _moneyData.PowerMoneyDecrease,
+        //         _moneyData.PowerLevel,
+        //         _moneyData.GainCoinLevel,
+        //         _moneyData.GainCoinDecrease);
+        //     
+        //     Debug.Log(_moneyData.TotalMoney + "     SAVE.TotalMoney");
+        //     Debug.Log(_moneyData.GainMoney + "     SAVE.GainMoney");
+        //     Debug.Log(_moneyData.BaseCubeValue + "     SAVE.BaseCubeValue");
+        //     Debug.Log(_moneyData.PowerMoneyDecrease + "     SAVE.PowerMoneyDecrease");
+        //     Debug.Log(_moneyData.PowerLevel + "     SAVE.PowerLevel");
+        //     Debug.Log(_moneyData.GainCoinLevel + "     SAVE.GainCoinLevel");
+        //     Debug.Log(_moneyData.GainCoinDecrease + "     SAVE.GainCoinDecrease");
+        //     
+        //     SaveSignals.Instance.onSaveMoneyData.Invoke(_moneyData,uniqueId);
+        // }
+        //
+        // public void Load(int uniqueId)
+        // {
+        //     MoneyData moneyData = SaveSignals.Instance.onLoadMoneyData.Invoke(_moneyData.Key, uniqueId);
+        //     
+        //     _moneyData.TotalMoney = moneyData.TotalMoney;
+        //     _moneyData.GainMoney = moneyData.GainMoney;
+        //     _moneyData.BaseCubeValue = moneyData.BaseCubeValue;
+        //     _moneyData.PowerMoneyDecrease = moneyData.PowerMoneyDecrease;
+        //     _moneyData.PowerLevel = moneyData.PowerLevel;
+        //     _moneyData.GainCoinLevel = moneyData.GainCoinLevel; 
+        //     _moneyData.GainCoinDecrease = moneyData.GainCoinDecrease;
+        //     
+        //     Debug.Log(moneyData.TotalMoney + "     LOAD.TotalMoney");
+        //     Debug.Log(moneyData.GainMoney + "     LOAD.GainMoney");
+        //     Debug.Log(moneyData.BaseCubeValue + "     LOAD.BaseCubeValue");
+        //     Debug.Log(moneyData.PowerMoneyDecrease + "     LOAD.PowerMoneyDecrease");
+        //     Debug.Log(moneyData.PowerLevel + "     LOAD.PowerLevel");
+        //     Debug.Log(moneyData.GainCoinLevel + "     LOAD.GainCoinLevel");
+        //     Debug.Log(moneyData.GainCoinDecrease + "     LOAD.GainCoinDecrease");
+        // }
     }
 }

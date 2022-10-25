@@ -53,13 +53,13 @@ namespace Managers
         private void SubscribeEvents()
         {
             CoreGameSignals.Instance.onChangeGameState += OnChangeGameState;
-            CoreGameSignals.Instance.onReset += OnReset;
+            LevelSignals.Instance.onNextLevel += OnNextLevel;
             EnemyCubeSignals.Instance.onHitEnemyCube += OnHitEnemyCube;
         }
         private void UnSubscribeEvents()
         {
             CoreGameSignals.Instance.onChangeGameState -= OnChangeGameState;
-            CoreGameSignals.Instance.onReset -= OnReset;
+            LevelSignals.Instance.onNextLevel -= OnNextLevel;
             EnemyCubeSignals.Instance.onHitEnemyCube -= OnHitEnemyCube;
         }
         
@@ -123,8 +123,7 @@ namespace Managers
             UISignals.Instance.onSetLeftText?.Invoke(_data.LeftCubeCount);
             if (_data.LeftCubeCount <= 0 && _data.SpawnCubeCount <= 0)
             {
-                UISignals.Instance.onOpenPanel?.Invoke(UIPanels.WinPanel);
-                UISignals.Instance.onClosePanel?.Invoke(UIPanels.LevelPanel);
+                LevelSignals.Instance.onLevelCompleted?.Invoke();
                 CoreGameSignals.Instance.onChangeGameState?.Invoke(GameStates.GameStop);
             }
         }
@@ -163,7 +162,7 @@ namespace Managers
             _data.SpawnCubeCount = _data.LeftCubeCount;
         }
         
-        private void OnReset()
+        private void OnNextLevel()
         {
             GetLeftCubeCount();
             UISignals.Instance.onSetLeftText?.Invoke(_data.LeftCubeCount);

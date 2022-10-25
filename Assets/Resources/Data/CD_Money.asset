@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MoneyData:
     Key: MoneyData
-    TotalMoney: 10000
+    TotalMoney: 1000
     GainMoney: 1
     BaseCubeValue: 1
     PowerMoneyDecrease: 20

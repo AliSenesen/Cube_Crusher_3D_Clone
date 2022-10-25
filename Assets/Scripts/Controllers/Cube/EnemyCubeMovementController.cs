@@ -59,8 +59,7 @@ namespace Controllers.Cube
 
             if (_gridManager.Nodes[newPosition.x, newPosition.y] == _gridManager.Nodes[newPosition.x,0])
             {
-                UISignals.Instance.onOpenPanel?.Invoke(UIPanels.FailPanel);
-                UISignals.Instance.onClosePanel?.Invoke(UIPanels.LevelPanel);
+                LevelSignals.Instance.onLevelCompleted?.Invoke();
                 CoreGameSignals.Instance.onChangeGameState?.Invoke(GameStates.GameStop);
             }
         }

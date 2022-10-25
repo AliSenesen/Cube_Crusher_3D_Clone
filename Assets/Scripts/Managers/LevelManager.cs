@@ -44,7 +44,7 @@ namespace Managers
         
         private void Start()
         {
-            OnInitializeLevel();
+            InitializeLevel();
         }
 
         private void GetData()
@@ -90,10 +90,13 @@ namespace Managers
         
         private void OnInitializeLevel()
         {
+            InitializeLevel();
+        }
+
+        private void InitializeLevel()
+        {
             var newLevelData = _levelID % Resources.Load<CD_Level>("Data/CD_Level").Levels.Count;
             _levelLoaderCommand.Execute(newLevelData);
-            _levelID += 1;
-            UISignals.Instance.onSetLevelText?.Invoke(_levelID);
         }
 
         private void OnClearActiveLevel()
@@ -109,9 +112,9 @@ namespace Managers
         private void OnNextLevel()
         {
             _levelID += 1;
+            UISignals.Instance.onSetLevelText?.Invoke(_levelID);
             LevelSignals.Instance.onClearActiveLevel?.Invoke();
             LevelSignals.Instance.onLevelInitialize?.Invoke();
-            CoreGameSignals.Instance.onReset?.Invoke();
         }
     }
 }
