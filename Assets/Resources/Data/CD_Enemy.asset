@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CD_Enemy
   m_EditorClassIdentifier: 
   EnemyData:
+    Key: 
     LeftCubeCount: 15
-    SpawnCubeCount: 0
+    SpawnCubeCount: 10
     TempLeftCubeCount: 15

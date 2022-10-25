@@ -30,6 +30,7 @@ namespace Managers
         [ShowInInspector] private int _levelID;
         private LevelLoaderCommand _levelLoaderCommand;
         private ClearActiveLevelCommand _clearActiveLevelCommand;
+        private int _uniqueID;
         
         #endregion
 

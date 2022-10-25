@@ -19,6 +19,7 @@ namespace Managers
         private GridManager _gridManager;
         private ObjectPooler _objectPooler;
         private int _leftCubeIncrease;
+        private int _uniqueID;
         
         private void Awake()
         {
