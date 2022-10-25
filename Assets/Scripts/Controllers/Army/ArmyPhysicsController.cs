@@ -11,7 +11,8 @@ namespace Controllers.Army
     {
         private ArmyManager _armyManager;
         private MoneyData _moneyData;
-        
+        [SerializeField] private GameObject armyParticle; 
+        [SerializeField] private GameObject moneyParticle;
         private void Awake()
         {
             _armyManager = FindObjectOfType<ArmyManager>();
@@ -22,14 +23,17 @@ namespace Controllers.Army
         {
             if (other.CompareTag("EnemyCube"))
             {
+                Instantiate(armyParticle,other.gameObject.transform.position,gameObject.transform.rotation);
                 EnemyCubeSignals.Instance.onHitEnemyCube?.Invoke(other.transform);
                 _armyManager.ReturnToPoolArmy(gameObject);
                 _armyManager.ArmyCheck();
+                
             }
             
 
             if (other.CompareTag("EnemyBase"))
             {
+                Instantiate(moneyParticle,gameObject.transform.position,gameObject.transform.rotation);
                 _armyManager.ReturnToPoolArmy(gameObject);
                 _armyManager.ArmyCheck();
                 UISignals.Instance.onSetCoinText?.Invoke();

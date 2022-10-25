@@ -90,6 +90,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d2fde44e73642b5b2a36b843ee23a32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  armyParticle: {fileID: 100000, guid: f2dba9e16cd347f44a395b8204544ee5, type: 3}
+  moneyParticle: {fileID: 100004, guid: 757df604761b8ef42831192c70ee1099, type: 3}
 --- !u!1 &4130747774410414778
 GameObject:
   m_ObjectHideFlags: 0
