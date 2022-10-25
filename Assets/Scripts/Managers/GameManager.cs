@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
         CoreGameSignals.Instance.onGameOpen?.Invoke();
     }
     
+    
     private void GameClose()
     {
         CoreGameSignals.Instance.onGameClose?.Invoke();

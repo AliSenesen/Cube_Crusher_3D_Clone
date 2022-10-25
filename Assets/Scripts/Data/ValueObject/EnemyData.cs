@@ -1,12 +1,19 @@
 ﻿using System;
+using Abstract;
 
 namespace Data.ValueObject
 {
     [Serializable]
-    public class EnemyData
+    public class EnemyData : SaveableEntitiy
     {
-        public int LeftCubeCount = 30;
+        public string Key = "EnemyLeftData";
+        
+        public int LeftCubeCount;
         public int SpawnCubeCount;
-        public int TempLeftCubeCount = 30;
+        public int TempLeftCubeCount;
+        public override string GetKey()
+        {
+            return Key;
+        }
     }
 }

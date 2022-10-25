@@ -9,11 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89041d441ebb4318a662e43f140d9987, type: 3}
+  m_Script: {fileID: 11500000, guid: 1aeb47c2442847ca8b791a3fb2d23f3b, type: 3}
   m_Name: CD_Money
   m_EditorClassIdentifier: 
   MoneyData:
-    TotalMoney: 100
+    Key: MoneyData
+    TotalMoney: 10000
     GainMoney: 1
     BaseCubeValue: 1
     PowerMoneyDecrease: 20

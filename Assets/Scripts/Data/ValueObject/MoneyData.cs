@@ -1,19 +1,42 @@
 ﻿using System;
+using Abstract;
 
 namespace Data.ValueObject
 {
     [Serializable]
-    public class MoneyData
+    public class MoneyData: SaveableEntitiy
     {
-        public int TotalMoney = 500;
+        public string Key = "MoneyData";
         
-        public int GainMoney = 10;
-        public int BaseCubeValue = 1;
+        public int TotalMoney;
         
-        public int PowerMoneyDecrease = 100;
-        public int PowerLevel = 1;
+        public int GainMoney;
+        public int BaseCubeValue;
         
-        public int GainCoinLevel = 1;
-        public int GainCoinDecrease = 100;
+        public int PowerMoneyDecrease;
+        public int PowerLevel;
+        
+        public int GainCoinLevel;
+        public int GainCoinDecrease;
+
+        public MoneyData()
+        {
+            
+        }
+
+        public MoneyData(int totalMoney,int gainMoney,int baseCubeValue,int powerMoneyDecrease, int powerLevel, int gainCoinLevel,int gainCoinDecrease)
+        {
+            TotalMoney = totalMoney;
+            GainMoney = gainMoney;
+            BaseCubeValue = baseCubeValue;
+            PowerMoneyDecrease = powerMoneyDecrease;
+            PowerLevel = powerLevel;
+            GainCoinLevel = gainCoinLevel;
+            GainCoinDecrease = gainCoinDecrease;
+        }
+        public override string GetKey()
+        {
+            return Key;
+        }
     }
 }
